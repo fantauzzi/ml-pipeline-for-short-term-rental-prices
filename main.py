@@ -40,6 +40,7 @@ def go(config: DictConfig):
             _ = mlflow.run(
                 f"{config['main']['components_repository']}/get_data",
                 "main",
+                version="main",
                 parameters={
                     "sample": config["etl"]["sample"],
                     "artifact_name": "sample.csv",
@@ -52,6 +53,7 @@ def go(config: DictConfig):
             ##################
             # Implement here #
             ##################
+
             pass
 
         if "data_check" in active_steps:
