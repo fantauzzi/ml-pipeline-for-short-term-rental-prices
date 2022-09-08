@@ -51,7 +51,7 @@ This is the complete pipeline as depicted by Weights & Biases.
 
 The [public project](https://wandb.ai/fantauzzi/nyc_airbnb) on Weights & Biases.
 
-[Releases]() for this GitHub project
+[Releases](https://github.com/fantauzzi/ml-pipeline-for-short-term-rental-prices/releases) for this GitHub project
 
 ## License
 
