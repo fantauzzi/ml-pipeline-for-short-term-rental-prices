@@ -68,15 +68,13 @@ def go(args):
 
     sk_pipe, processed_features = get_inference_pipeline(rf_config, args.max_tfidf_features)
 
-    # Then fit it to the X_train, y_train data
+    # Fit the pipeline to the X_train, y_train data
     logger.info("Fitting")
-
     sk_pipe.fit(X_train, y_train)
 
-    # Compute r2 and MAE
+    # Compute r2 and MAE metrics
     logger.info("Scoring")
     r_squared = sk_pipe.score(X_val, y_val)
-
     y_pred = sk_pipe.predict(X_val)
     mae = mean_absolute_error(y_val, y_pred)
 
@@ -91,16 +89,16 @@ def go(args):
 
     # Save the sk_pipe pipeline as a mlflow.sklearn model in the directory "random_forest_dir"
     with tempfile.TemporaryDirectory() as temp_dir:
+        # Save the model in the local filesystem
         export_path = os.path.join(temp_dir, 'random_forest_dir')
         signature = infer_signature(X_val, y_pred)
-
         mlflow.sklearn.save_model(sk_pipe,
                                   export_path,
                                   serialization_format=mlflow.sklearn.SERIALIZATION_FORMAT_CLOUDPICKLE,
                                   signature=signature,
                                   input_example=X_val.iloc[:2])
 
-        # Upload the model we just exported to W&B
+        # Upload the model from the local filesystem into W&B
         artifact = wandb.Artifact(args.output_artifact,
                                   type='model_export',
                                   description='Random forest pipeline export',
@@ -154,9 +152,8 @@ def get_inference_pipeline(rf_config, max_tfidf_features):
     # (nor during training). That is not true for neighbourhood_group
     ordinal_categorical_preproc = OrdinalEncoder()
 
-    # Build a pipeline with two steps:
-    # 1 - A SimpleImputer(strategy="most_frequent") to impute missing values
-    # 2 - A OneHotEncoder() step to encode the variable
+    # Build a pipeline with two steps, a SimpleImputer() to impute missing values
+    # and a OneHotEncoder() to encode the categorical variables
     non_ordinal_categorical_preproc = make_pipeline(SimpleImputer(strategy='most_frequent'), OneHotEncoder())
 
     # Let's impute the numerical columns to make sure we can handle missing values
@@ -210,8 +207,8 @@ def get_inference_pipeline(rf_config, max_tfidf_features):
     # Create random forest
     random_Forest = RandomForestRegressor(**rf_config)
 
-    # Create the inference pipeline. The pipeline must have 2 steps: a step called "preprocessor" applying the
-    # ColumnTransformer instance that we saved in the `preprocessor` variable, and a step called "random_forest"
+    # Create the inference pipeline with two steps: the "preprocessor" that applies the
+    # ColumnTransformer instance that we saved in the `preprocessor` variable, and the "random_forest"
     # with the random forest instance that we just saved in the `random_forest` variable.
     sk_pipe = Pipeline(steps=[('preprocessor', preprocessor),
                               ('random_forest', random_Forest)])
