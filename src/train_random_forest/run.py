@@ -127,8 +127,6 @@ def go(args):
     )
 
 
-
-
 def plot_feature_importance(pipe, feat_names):
     # We collect the feature importance for all non-nlp features first
     feat_imp = pipe["random_forest"].feature_importances_[: len(feat_names) - 1]
