@@ -94,16 +94,6 @@ def go(config: DictConfig):
                     'stratify_by': config['modeling']['stratify_by'],
                 },
             )
-        # "python run.py {input} {test_size} --random_seed {random_seed} --stratify_by {stratify_by}"
-
-        """      python run.py --trainval_artifact {trainval_artifact} \
-                    --val_size {val_size} \
-                    --random_seed {random_seed} \
-                    --stratify_by {stratify_by} \
-                    --rf_config {rf_config} \
-                    --max_tfidf_features {max_tfidf_features} \
-                    --output_artifact {output_artifact}
-        """
 
         if 'train_random_forest' in active_steps:
             # NOTE: we need to serialize the random forest configuration into JSON
@@ -130,10 +120,16 @@ def go(config: DictConfig):
 
             pass
 
+        # --mlflow_model {mlflow_model} --test_dataset {test_dataset}"
         if 'test_regression_model' in active_steps:
-            ##################
-            # Implement here #
-            ##################
+            _ = mlflow.run(
+                f"{config['main']['components_repository']}/test_regression_model",
+                'main',
+                version='main',
+                parameters={'mlflow_model': 'random_forest_export:prod',
+                            'test_dataset': 'test_data.csv:latest',
+                            },
+            )
 
             pass
 
