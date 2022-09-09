@@ -36,7 +36,7 @@ def go(args):
     artifact = wandb.Artifact(args.output_artifact,
                               type=args.output_type,
                               description=args.output_description)
-    artifact.add_file((output_file_name))
+    artifact.add_file(output_file_name)
     run.log_artifact(artifact)
 
 
